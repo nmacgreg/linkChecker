@@ -22,7 +22,7 @@ def get_internal_links(url, domain):
 
 def find_broken_links(url):
     """Finds broken links on the given page and all internal pages within the same domain."""
-    broken_links = []
+    broken_links = {}
     visited = set()
     links_to_visit = [url]
     domain = urlparse(url).netloc
@@ -39,13 +39,17 @@ def find_broken_links(url):
         try:
             page = requests.get(current_url)
             if page.status_code == 404:
-                broken_links.append((current_url, "404 Error"))
+                if current_url not in broken_links:
+                    broken_links[current_url] = []
+                broken_links[current_url].append("404 Error")
             else:
                 links_to_visit.extend(
                     [link for link in get_internal_links(current_url, domain) if link not in visited]
                 )
         except requests.exceptions.RequestException as e:
-            broken_links.append((current_url, str(e)))
+            if current_url not in broken_links:
+                broken_links[current_url] = []
+            broken_links[current_url].append(str(e))
 
     return broken_links
 
@@ -60,8 +64,9 @@ input_url = sys.argv[1]
 broken_links = find_broken_links(input_url)
 if broken_links:
     print("Broken links found:")
-    for link, error in broken_links:
-        print(f"- {link}: {error}")
+    for url, errors in broken_links.items():
+        print(f"\nURL: {url}")
+        for error in errors:
+            print(f"- {error}")
 else:
     print("No broken links found.")
-

@@ -1,6 +1,7 @@
 #!/usr/bin/python 
 
 # ChatGPT
+import sys
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
@@ -42,8 +43,12 @@ def find_broken_links(url):
 
     return broken_links
 
-# Get URL from user
-input_url = input("Enter a URL to check for broken links: ")
+# Get URL from command-line argument
+if len(sys.argv) != 2:
+    print("Usage: python broken_links.py <URL>")
+    sys.exit(1)
+
+input_url = sys.argv[1]
 
 # Find and print broken links
 broken_links = find_broken_links(input_url)
@@ -53,4 +58,3 @@ if broken_links:
         print(f"- {link}: {error}")
 else:
     print("No broken links found.")
-

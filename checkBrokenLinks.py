@@ -2,6 +2,7 @@
 
 # ChatGPT
 import sys
+import os
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
@@ -29,6 +30,9 @@ def find_broken_links(url):
     while links_to_visit:
         current_url = links_to_visit.pop()
         visited.add(current_url)
+
+        if os.getenv("DEBUG") == "1":
+            print("Visiting:", current_url)
 
         try:
             page = requests.get(current_url)
@@ -58,3 +62,4 @@ if broken_links:
         print(f"- {link}: {error}")
 else:
     print("No broken links found.")
+

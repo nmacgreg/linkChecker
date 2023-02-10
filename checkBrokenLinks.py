@@ -4,6 +4,7 @@
 import sys
 import os
 import requests
+import unittest
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
 
@@ -53,20 +54,27 @@ def find_broken_links(url):
 
     return broken_links
 
-# Get URL from command-line argument
-if len(sys.argv) != 2:
-    print("Usage: python broken_links.py <URL>")
-    sys.exit(1)
+class TestBrokenLinks(unittest.TestCase):
+    def test_find_broken_links(self):
+        test_data = [
+            ('https://www.google.com', {}),
+            ('https://www.github.com', {}),
+            ('https://nonexistentwebsite.com', {'https://nonexistentwebsite.com': ['404 Client Error: Not Found for url: https://nonexistentwebsite.com']}),
+        ]
+        for url, expected_output in test_data:
+            self.assertEqual(find_broken_links(url), expected_output)
 
-input_url = sys.argv[1]
+if __name__ == '__main__':
+    # Get URL from command-line argument
+    if len(sys.argv) != 2:
+        print("Usage: python broken_links.py <URL>")
+        sys.exit(1)
 
-# Find and print broken links
-broken_links = find_broken_links(input_url)
-if broken_links:
-    print("Broken links found:")
-    for url, errors in broken_links.items():
-        print(f"\nURL: {url}")
-        for error in errors:
-            print(f"- {error}")
-else:
-    print("No broken links found.")
+    input_url = sys.argv[1]
+
+    # Find and print broken links
+    broken_links = find_broken_links(input_url)
+    if broken_links:
+        print("Broken links found:")
+        for url, errors in broken
+

@@ -29,6 +29,8 @@ def find_broken_links(url):
 
     while links_to_visit:
         current_url = links_to_visit.pop()
+        if current_url in visited:
+            continue
         visited.add(current_url)
 
         if os.getenv("DEBUG") == "1":

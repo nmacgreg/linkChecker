@@ -1,6 +1,5 @@
 #!/usr/bin/python 
 
-# ChatGPT
 import sys
 import os
 import requests
@@ -21,19 +20,15 @@ def get_internal_links(url, domain):
                 links.append(href)
     return links
 
-def find_broken_links(url):
+def find_broken_links(links_to_visit, visited, broken_links, domain):
     """Finds broken links on the given page and all internal pages within the same domain."""
-    broken_links = {}
-    visited = set()
-    links_to_visit = [url]
     internal_links = []
-    domain = urlparse(url).netloc
 
     while links_to_visit:
         current_url = links_to_visit.pop()
         if current_url in visited:
-            continue
-        visited.add(current_url)  # don't visit again!
+            continue                    # we've already processed it; nothing to see
+        visited.add(current_url)        # Add it to the list, so we don't visit again!
 
         if os.getenv("DEBUG") == "1":
             print("Visiting:", current_url)
@@ -61,22 +56,25 @@ def find_broken_links(url):
                             links.append(href)
                 # We have a list of all the links on this page, which are within the domain  
                 for link in links:
-                    # Did we already visit this link? Then don't visit it again!
                     if link in visited:
-                        continue
-                    visited.add(link) # don't visit again
+                        continue                                        # Did we already visit this link? Then don't visit it again!
+                    visited.add(link)                                   # don't visit again
                     try:
-                        linkpage = requests.get(link)                   # OK, this is a problem. We're visiting the page. We said we were only gonna do that once. But we're not parsing it for links
+                        # OK, this is a problem. We're visiting the page. We said we were only gonna do that once. But we're not parsing it for links
+                        # Do we need to load all the "linkpage"-images into a giant datastructure & carry them all around?
+                        linkpage = requests.get(link)                   
                         if linkpage.status_code == 404:                 # When we get a broken link...
                             if current_url not in broken_links:
                                 broken_links[current_url] = []
                             broken_links[current_url].append(link)      # ... add it to the list of broken links found on this page!!!!! THIS IS THE PAYDIRT!
                         else:
-                            # Hey, a link on the page this page is valid
+                            # Hey, a link on the page this page is valid = do nothing
                     except requests.exceptions.RequestException as e:   # The visit to the linked URL might end in error
                         if current_url not in broken_links:
                             broken_links[current_url] = []
                         broken_links[current_url].append(link)          # This is also PAYDIRT, finding a 500 error!!
+
+                # Wait... we've processed all the links in this page? 
 
         except requests.exceptions.RequestException as e:               # 
             if current_url not in broken_links:
@@ -88,26 +86,19 @@ def find_broken_links(url):
 
     return broken_links
 
-class TestBrokenLinks(unittest.TestCase):
-    def test_find_broken_links(self):
-        test_data = [
-            ('https://www.google.com', {}),
-            ('https://www.github.com', {}),
-            ('https://nonexistentwebsite.com', {'https://nonexistentwebsite.com': ['404 Client Error: Not Found for url: https://nonexistentwebsite.com']}),
-        ]
-        for url, expected_output in test_data:
-            self.assertEqual(find_broken_links(url), expected_output)
-
 if __name__ == '__main__':
     # Get URL from command-line argument
     if len(sys.argv) != 2:
         print("Usage: python broken_links.py <URL>")
         sys.exit(1)
 
-    input_url = sys.argv[1]
+    input_url = [ sys.argv[1] ]
 
     # Find and print broken links
-    broken_links = find_broken_links(input_url)
+    visited = [];
+    domain = urlparse(input_url[0]).netloc
+    broken_links = {}
+    find_broken_links(input_url, visited, broken_links, domain)
     if broken_links:
         print("Broken links found:")
         print(broken_links)

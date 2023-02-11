@@ -1,0 +1,12 @@
+site_name: Test data for Python Link Checker
+  #site_url: https://valerie.mynet.local/systemsDoc/
+  #repo_url: https://github.com/nmacgreg/systemsDoc
+  #edit_uri: edit/main/docs
+  #repo_name: systemsDoc
+nav:
+  - Home: index.md
+  - Document 1: one.md
+  - Document 2: two.md
+  - Document 3: three.md
+
+theme: readthedocs  

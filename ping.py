@@ -67,8 +67,7 @@ def find_broken_links(links_to_visit, visited, broken_links, domain):
                             if current_url not in broken_links:
                                 broken_links[current_url] = []
                             broken_links[current_url].append(link)      # ... add it to the list of broken links found on this page!!!!! THIS IS THE PAYDIRT!
-                        else:
-                            # Hey, a link on the page this page is valid = do nothing
+                        # Hey, a link on the page this page is valid = do nothing
                     except requests.exceptions.RequestException as e:   # The visit to the linked URL might end in error
                         if current_url not in broken_links:
                             broken_links[current_url] = []
@@ -80,8 +79,6 @@ def find_broken_links(links_to_visit, visited, broken_links, domain):
             if current_url not in broken_links:
                 broken_links[current_url] = []
             broken_links[current_url].append(str(e))            
-
-        
 
 
     return broken_links
@@ -109,4 +106,3 @@ if __name__ == '__main__':
                 print(f"- {error}")
 else:
     print("No broken links found.")
-
